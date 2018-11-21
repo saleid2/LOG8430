@@ -63,9 +63,15 @@ def new_receipt():
 
 
 def get_frequent():
-    # TODO: Implement display
-    pass
+    r = requests.get(server_host + get_frequent_route)
+    # TODO: Pretty print
+    print(r.json())
 
+
+#
+# python client.py http://HOSTNAME:PORT X
+# if x = 0   : new receipt
+# if x != 0  : get frequent item
 
 if len(sys.argv) > 1:
     server_host = "http://" + sys.argv[1]

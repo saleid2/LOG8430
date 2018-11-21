@@ -1,3 +1,5 @@
 In order to run the server, you must have Python 3.6 or higher installed.
 The following requirements are needed, and can be installed through PIP:
- - Flask
+ - Flask (latest version)
+ - requests (latest version)
+ - pyspark (latest version)
