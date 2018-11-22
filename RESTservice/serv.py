@@ -2,20 +2,40 @@ from flask import Flask, request, abort, jsonify
 import json
 import pyspark, sys
 from pyspark.mllib.fpm import FPGrowth
+from pyspark.sql import SparkSession
+from pyspark import SparkConf, SparkContext
+# Source: https://www.mongodb.com/blog/post/getting-started-with-python-and-mongodb
+from pprint import pprint
+from pymongo import MongoClient
 
-
-# VERIFY SERVER ARGUMENTS
-if not len(sys.argv) > 1:
-    print("Missing Spark Cluster URL to connect to. (e.g. mesos://host:port, spark://host:port)")
-    exit(-1)
+# CONNECTION TO MONGODB
+MONGODB_URL = "mongodb://127.0.0.1:27017"
+client = MongoClient(MONGODB_URL)
+db = client['log8430'] # database name
+'''
+# Test entry to test the DB itself
+receipt = {
+    "items": [
+        {
+        "name": "Potato", "price": "$50.00"
+        }
+    ]
+}
+db.receipts.insert_one(receipt)
+'''
 
 # INITIALIZE FLASK AND SPARK
+MONGODB_SPARK_URL = "mongodb://127.0.0.1/log8430.receipts" # database_name.collection
 app = Flask(__name__)
-spark = pyspark.sql.SparkSession.builder \
-            .master(sys.argv[1]) \
-            .appName("LOG8430 Server") \
-            .getOrCreate()
 
+spark = SparkSession \
+            .builder \
+            .appName("log8430-server") \
+            .master("local") \
+            .config("spark.mongodb.input.uri", MONGODB_SPARK_URL) \
+            .config("spark.mongodb.output.uri", MONGODB_SPARK_URL) \
+            .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.11:2.2.5") \
+            .getOrCreate()
 
 # DEFAULT ROUTE
 @app.route('/')
@@ -41,16 +61,14 @@ def post_receipt():
         return jsonify(receipt)
 
 
-# TODO: format, table & keyspace need to be validated against actual database used
-DB_FORMAT = "org.apache.spark.sql.cassandra"
-DB_OPTIONS_TABLE = "receipts"
-DB_OPTIONS_KEYSPACE = "items"
+DB_FORMAT = "com.mongodb.spark.sql.DefaultSource"
 
 # GET DATA
 def _get_dataframe():
+    # Source : https://docs.mongodb.com/spark-connector/master/python/read-from-mongodb/
     df = spark.read.format(DB_FORMAT) \
-        .options(table=DB_OPTIONS_TABLE,keyspace=DB_OPTIONS_KEYSPACE) \
         .load()
+    # df.printSchema() # Testing if Spark can read from MongoDB
 
     return df
 
