@@ -9,8 +9,10 @@ The following requirements are needed, and can be installed through PIP:
  
  2. Additional requirement:
  Install a local MongoDB server for testing purposes.
+
+ 3. Enter MongoDB information in server_config.py
  
- 3. This app is compatible with Spark 2.3.x, not with Spark 2.4.x.
+ 4. This app is compatible with Spark 2.3.x, not with Spark 2.4.x.
  Install Apache Spark on Ubuntu using this tutorial : https://medium.com/devilsadvocatediwakar/installing-apache-spark-on-ubuntu-8796bfdd0861
  
  STEP 2: RUN THE SERVER ITSELF

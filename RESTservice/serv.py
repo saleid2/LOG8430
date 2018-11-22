@@ -1,6 +1,5 @@
 from flask import Flask, request, abort, jsonify
-import json
-import pyspark, sys
+import json, pyspark, server_config as sc
 from pyspark.mllib.fpm import FPGrowth
 from pyspark.sql import SparkSession
 from pyspark import SparkConf, SparkContext
@@ -9,7 +8,7 @@ from pprint import pprint
 from pymongo import MongoClient
 
 # CONNECTION TO MONGODB
-MONGODB_URL = "mongodb://127.0.0.1:27017"
+MONGODB_URL = sc.get_mongo_url()
 client = MongoClient(MONGODB_URL)
 db = client['log8430'] # database name
 '''
@@ -24,9 +23,11 @@ receipt = {
 db.receipts.insert_one(receipt)
 '''
 
-# INITIALIZE FLASK AND SPARK
-MONGODB_SPARK_URL = "mongodb://127.0.0.1/log8430.receipts" # database_name.collection
+# INITIALIZE FLASK
 app = Flask(__name__)
+
+# INITIALIZE SPARK
+MONGODB_SPARK_URL = sc.get_mongo_spark_url()
 
 spark = SparkSession \
             .builder \
@@ -36,6 +37,7 @@ spark = SparkSession \
             .config("spark.mongodb.output.uri", MONGODB_SPARK_URL) \
             .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.11:2.2.5") \
             .getOrCreate()
+
 
 # DEFAULT ROUTE
 @app.route('/')
@@ -56,7 +58,8 @@ def post_receipt():
     else:
         receipt = request.json['receipt']
 
-        # TODO: write to DB (depends on DB used)
+        # TODO: Test
+        db.receipts.insert_one(receipt)
 
         return jsonify(receipt)
 
@@ -76,7 +79,7 @@ def _get_dataframe():
 # GET FREQUENT ITEMS ROUTE
 @app.route('/receipt/frequent', methods=['GET'])
 def get_frequent():
-    output = {"frequency":[]}
+    output = {"frequency": []}
 
     df = _get_dataframe()
     # TODO: Get from Spark
