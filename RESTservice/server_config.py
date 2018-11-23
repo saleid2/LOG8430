@@ -25,7 +25,7 @@ def _format_user_pass():
 
 
 def get_mongo_url():
-    return _CONFIG_MONGO_SCHEMA + _format_user_pass() + _CONFIG_MONGO_URL + ":" + _CONFIG_MONGO_PORT
+    return _CONFIG_MONGO_SCHEMA + _format_user_pass() + _CONFIG_MONGO_URL + ":" + _CONFIG_MONGO_PORT + "/" + _CONFIG_MONGO_DBNAME
 
 
 # TODO: Test to see if port is missing
