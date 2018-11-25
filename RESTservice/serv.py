@@ -1,5 +1,5 @@
 from flask import Flask, request, abort, jsonify
-import json, pyspark, server_config as sc
+import json, pyspark, re, server_config as sc
 from pyspark.mllib.fpm import FPGrowth
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as PysparkF
@@ -71,6 +71,7 @@ def post_receipt():
 
 DB_FORMAT = "com.mongodb.spark.sql.DefaultSource"
 
+
 # GET DATA
 def _get_dataframe():
     # Source : https://docs.mongodb.com/spark-connector/master/python/read-from-mongodb/
@@ -84,8 +85,6 @@ def _get_dataframe():
 # GET FREQUENT ITEMS ROUTE
 @app.route('/receipt/frequent', methods=['GET'])
 def get_frequent():
-    output = {"frequency": []}
-
     df = _get_dataframe()
     # https://spark.apache.org/docs/latest/mllib-frequent-pattern-mining.html
     transactions = df.groupBy("_id") \
@@ -96,8 +95,12 @@ def get_frequent():
 
     model = FPGrowth.train(transactions, minSupport=0.2, numPartitions=10)
     result = model.freqItemsets().collect()
+
+    stripped_result = []
+
     for fi in result:
-        print(fi)
+        words, freq = re.search(r'FreqItemset\(items=\[(.*)\], freq=(\d*)\)', "%s" % fi).groups()
+        stripped_result.append({'words':words, 'freq': int(freq})
 
     # Sample code below works.
 
@@ -111,7 +114,7 @@ def get_frequent():
         print(fi)
     '''
 
-    return output   # may need to serialize the object
+    return json.dump(stripped_result)   # TODO: Definitely needs to be tester
 
 
 if __name__ == '__main__':

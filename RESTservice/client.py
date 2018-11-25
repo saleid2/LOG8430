@@ -64,7 +64,6 @@ def new_receipt():
 
 def get_frequent():
     r = requests.get(server_host + get_frequent_route)
-    # TODO: Pretty print
     print(r.json())
 
 
