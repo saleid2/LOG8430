@@ -2,10 +2,19 @@ from flask import Flask, request, abort, jsonify
 import json, pyspark, server_config as sc
 from pyspark.mllib.fpm import FPGrowth
 from pyspark.sql import SparkSession
-from pyspark import SparkConf, SparkContext
+from pyspark.sql import functions as PysparkF
 # Source: https://www.mongodb.com/blog/post/getting-started-with-python-and-mongodb
 from pprint import pprint
 from pymongo import MongoClient
+
+# Source: https://stackoverflow.com/questions/16586180/typeerror-objectid-is-not-json-serializable
+from bson import ObjectId
+
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, 0)
 
 # CONNECTION TO MONGODB
 MONGODB_URL = sc.get_mongo_url()
@@ -16,7 +25,7 @@ db = client['log8430'] # database name
 receipt = {
     "items": [
         {
-        "name": "Potato", "price": "$50.00"
+        "name": "Potato", "price": 5.0
         }
     ]
 }
@@ -34,14 +43,13 @@ spark = SparkSession \
             .appName("log8430-server") \
             .master("local") \
             .config("spark.mongodb.input.uri", MONGODB_SPARK_URL) \
-            .config("spark.mongodb.output.uri", MONGODB_SPARK_URL) \
             .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.11:2.2.5") \
             .getOrCreate()
-
 
 # DEFAULT ROUTE
 @app.route('/')
 def get_hello():
+    pprint("HELLO WORLD")
     return "LOG8430 - Service REST"
 
 
@@ -57,11 +65,8 @@ def post_receipt():
         abort(400)
     else:
         receipt = request.json['receipt']
-
-        # TODO: Test
         db.receipts.insert_one(receipt)
-
-        return jsonify(receipt)
+        return JSONEncoder().encode(receipt)
 
 
 DB_FORMAT = "com.mongodb.spark.sql.DefaultSource"
@@ -82,16 +87,32 @@ def get_frequent():
     output = {"frequency": []}
 
     df = _get_dataframe()
-    # TODO: Get from Spark
     # https://spark.apache.org/docs/latest/mllib-frequent-pattern-mining.html
-    # transactions = df.map(lambda line: line.strip().split(' '))
-    # model = FPGrowth.train(transactions, minSupport=0.2, numPartitions=10)
-    # result = model.freqItemsets().collect()
-    # for fi in result:
-    #     output['frequency'].append(fi)
+    transactions = df.groupBy("_id") \
+            .agg(PysparkF.collect_list("items.name").alias("product_name")) \
+            .rdd \
+            .flatMap(lambda x: x.product_name)
+    transactions.collect()
+
+    model = FPGrowth.train(transactions, minSupport=0.2, numPartitions=10)
+    result = model.freqItemsets().collect()
+    for fi in result:
+        print(fi)
+
+    # Sample code below works.
+
+    '''
+    sc = SparkContext.getOrCreate(spark.conf)
+    data = sc.textFile("sample_fpgrowth.txt")
+    transactions = data.map(lambda line: line.strip().split(' '))
+    model = FPGrowth.train(transactions, minSupport=0.2, numPartitions=10)
+    result = model.freqItemsets().collect()
+    for fi in result:
+        print(fi)
+    '''
 
     return output   # may need to serialize the object
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

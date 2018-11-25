@@ -1,9 +1,9 @@
 STEP 1: DEPENDENCIES
-1. In order to run the server, you must have Python 3.6 or higher installed.
+1. In order to run the server, you must have Python 2.7 ONLY.
 The following requirements are needed, and can be installed through PIP:
  - Flask (latest version)
  - requests (latest version)
- - pyspark (latest version)
+ - pyspark (2.3.2) (pip install pyspark==2.3.2)
  - numpy (latest version)
  - pymongo (latest version)
  
