@@ -1,27 +1,49 @@
 STEP 1: DEPENDENCIES
-1. In order to run the server, you must have Python 2.7 ONLY.
+1. In order to run the server, you must have Python 2.7.
 The following requirements are needed, and can be installed through PIP:
- - Flask (latest version)
- - requests (latest version)
- - pyspark (2.3.2) (pip install pyspark==2.3.2)
- - numpy (latest version)
- - pymongo (latest version)
+ - Flask (latest version): pip install flask
+ - requests (latest version): pip install requests
+ - pyspark (2.3.2): pip install pyspark==2.3.2
+ - numpy (latest version): pip install numpy
+ - pymongo (latest version): pip install pypmongo
  
- 2. Additional requirement:
+ 2. In order to run the client, you must have Python 3.
+ 
+ 3. Additional requirement:
  Install a local MongoDB server for testing purposes.
 
- 3. Enter MongoDB information in server_config.py
+ 4. Enter MongoDB information in server_config.py
  
- 4. This app is compatible with Spark 2.3.x, not with Spark 2.4.x.
- Install Apache Spark on Ubuntu using this tutorial : https://medium.com/devilsadvocatediwakar/installing-apache-spark-on-ubuntu-8796bfdd0861
+ 5. This app is compatible with Spark 2.3.x, not with Spark 2.4.x.
+ Install Apache Spark on Ubuntu using this tutorial : 
+	https://medium.com/devilsadvocatediwakar/installing-apache-spark-on-ubuntu-8796bfdd0861
  
- STEP 2: RUN THE SERVER ITSELF
- 1. When serv.py is running (that means Spark is too!):
+ STEP 2: RUN MONGODB
+ 1. Open a terminal console.
+ 2. Use the following command: mongo log8430 (to initialize the mongo database)
+ 
+ STEP 3: RUN THE SERVER ITSELF
+ 1. Go to the root of this project (RESTservice) and run the server: python ./serv.py
+ 2. When serv.py is running (that means Spark is too!):
   (If you followed the tutorial above correctly $SPARKHOME links to /usr/local/spark)
- 2. We need to launch TWO local slaves:
- 2.1 To do so, copy the file spark-env.sh into "/usr/local/spark/conf"
- 2.2 Use the following command to launch a slave: 
+ 3. We need to launch TWO local slaves:
+ 3.1 To do so, copy the file spark-env.sh into "/usr/local/spark/conf"
+ 3.2 Use the following command to launch a slave: 
 		sudo $SPARK_HOME/sbin/start-slave.sh <spark-master-URL>
 	 In this case, spark-master-URL is: spark://localhost:7077
 		sudo $SPARK_HOME/sbin/start-slave.sh spark://localhost:7077
+
+STEP 4: RUN THE CLIENT
+1. Go to the root of this project (RESTservice) and run the client: 
+	python ./client.py <server-ip-address>:<port>
+By default, we run :
+	python ./client.py 127.0.0.1:5000
+2. Follow the instructions on-screen to add receipts to the database.
+
+STEP 5: GET THE MOST FREQUENT PRODUCTS
+1. Go to the root of this project (RESTservice) and run the client: 
+	python ./client.py <server-ip-address>:<port> 1
+By default, we run :
+	python ./client.py 127.0.0.1:5000 1
+2. Appreciate the magic of Spark and Polytechnique education!
 

@@ -1,5 +1,6 @@
 import requests
 import sys
+import json
 
 
 DONE_ADDING = "!s"                              # Flag to stop adding items to receipt and send request to server
@@ -64,7 +65,9 @@ def new_receipt():
 
 def get_frequent():
     r = requests.get(server_host + get_frequent_route)
-    print(r.json())
+    results = r.json()
+    sorted_results = sorted(results, key=lambda x: x['freq'], reverse=True)
+    print(json.dumps(sorted_results, indent=4))
 
 
 #
@@ -79,7 +82,7 @@ if len(sys.argv) > 2:
     if sys.argv[2] != 0:
         new_receipt = False
 
-print("Server is found at http://",server_host)
+print("Server is found at " + server_host)
 
 if new_receipt:
     new_receipt()

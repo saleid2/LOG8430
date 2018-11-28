@@ -96,11 +96,13 @@ def get_frequent():
     model = FPGrowth.train(transactions, minSupport=0.2, numPartitions=10)
     result = model.freqItemsets().collect()
 
+    # FreqItemset(items=[u'orange'], freq=4)
     stripped_result = []
 
     for fi in result:
-        words, freq = re.search(r'FreqItemset\(items=\[(.*)\], freq=(\d*)\)', "%s" % fi).groups()
-        stripped_result.append({'words':words, 'freq': int(freq})
+        result_line = unicode(fi)
+        words, freq = re.search(r'FreqItemset\(items=\[(.*)\], freq=(\d*)\)', "%s" %result_line).groups()
+        stripped_result.append({'product': words, 'freq': int(freq)})
 
     # Sample code below works.
 
@@ -113,8 +115,7 @@ def get_frequent():
     for fi in result:
         print(fi)
     '''
-
-    return json.dump(stripped_result)   # TODO: Definitely needs to be tester
+    return json.dumps(stripped_result, indent=4, sort_keys=True)
 
 
 if __name__ == '__main__':
