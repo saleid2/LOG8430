@@ -35,15 +35,15 @@ The following requirements are needed, and can be installed through PIP:
 
 STEP 4: RUN THE CLIENT
 1. Go to the root of this project (RESTservice) and run the client: 
-	python ./client.py <server-ip-address>:<port>
+	python3 ./client.py <server-ip-address>:<port>
 By default, we run :
-	python ./client.py 127.0.0.1:5000
+	python3 ./client.py 127.0.0.1:5000
 2. Follow the instructions on-screen to add receipts to the database.
 
 STEP 5: GET THE MOST FREQUENT PRODUCTS
 1. Go to the root of this project (RESTservice) and run the client: 
-	python ./client.py <server-ip-address>:<port> 1
+	python3 ./client.py <server-ip-address>:<port> 1
 By default, we run :
-	python ./client.py 127.0.0.1:5000 1
+	python3 ./client.py 127.0.0.1:5000 1
 2. Appreciate the magic of Spark and Polytechnique education!
 
