@@ -2,14 +2,16 @@ Demonstration video: https://streamable.com/yxt7y
 
 STEP 1: DEPENDENCIES
 1. In order to run the server, you must have Python 2.7.
-The following requirements are needed, and can be installed through PIP:
+The following requirements are needed for the server, and can be installed through PIP for Python 2.7:
  - Flask (latest version): pip install flask
  - requests (latest version): pip install requests
  - pyspark (2.3.2): pip install pyspark==2.3.2
  - numpy (latest version): pip install numpy
  - pymongo (latest version): pip install pypmongo
  
- 2. In order to run the client, you must have Python 3.
+ 2. In order to run the client, you must have Python 3
+  The following requirements are needed for the client, and can be installed through PIP for Python 3
+  - requests (latest version): pip install requests
  
  3. Additional requirement:
  Install a local MongoDB server for testing purposes.
